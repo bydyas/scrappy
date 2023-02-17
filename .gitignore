@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# telthon session
+*.session
+*.session-journal
+
+# Add files
+constants.py
+
+
 # C extensions
 *.so
 
