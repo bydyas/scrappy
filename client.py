@@ -44,11 +44,23 @@ async def auth(phone):
     me = await client.get_me()
 
 
+async def get_groups():
+    all_groups = []
+    async for dialog in client.iter_dialogs():
+        if dialog.is_group:
+            all_groups.append({"ID": dialog.id, "TITLE": dialog.title})
+
+    df = pd.DataFrame(all_groups)
+    full_filename = username + "_groups.csv"
+    df.to_csv(full_filename, index=False)
+    print(f"{Fore.GREEN}Done: {full_filename}{Style.RESET_ALL}")
+
+
 async def get_messages():
     user_input_channel = input("Group URL or ID: ")
     user_input_tag = input("User TAG or ID: @")
     # Get group entity by URL or ID
-    if user_input_channel.isdigit():
+    if user_input_channel.lstrip("-").isdigit():
         channel_entity = PeerChannel(int(user_input_channel))
     else:
         channel_entity = user_input_channel
@@ -119,7 +131,7 @@ async def get_members():
 async def get_options():
     utils.clear()
     print("=========\nOptions:\n=========")
-    print("#1 : Get the group members :\n#2 : Get messages :\n#3 :Log out")
+    print("#1 : Get the group members :\n#2 : Get messages :\n#3 : Get groups :\n#4 :Log out")
 
     your_option = input("\nEnter the option's number: #")
 
@@ -135,6 +147,10 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "3"):
+        await get_groups()
+        sleep(2)
+        await get_options()
+    elif (your_option == "4"):
         await client.log_out()
         print(f"{Fore.GREEN} Bye, {username}{Style.RESET_ALL}")
     else:
