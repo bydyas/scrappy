@@ -56,6 +56,16 @@ async def get_groups():
     print(f"{Fore.GREEN}Done: {full_filename}{Style.RESET_ALL}")
 
 
+async def get_user_id():
+    user_input_tag = input("User tag: @")
+    try:
+        user = await client.get_entity(user_input_tag)
+        print(f"{Fore.GREEN}Done! {user.username}:{user.id}{Style.RESET_ALL}")
+    except UsernameInvalidError as e:
+        await event.respond(f'{Fore.YELLOW}Invalid user tag. Try another{Style.RESET_ALL}')
+        raise events.StopPropagation
+
+
 async def get_messages():
     user_input_channel = input("Group URL or ID: ")
     user_input_tag = input("User TAG or ID: @")
@@ -130,8 +140,9 @@ async def get_members():
 
 async def get_options():
     utils.clear()
-    print("=========\nOptions:\n=========")
-    print("#1 : Get the group members :\n#2 : Get messages :\n#3 : Get groups :\n#4 :Log out")
+    print("=========\n Options:\n=========")
+    print(
+        f"{Fore.LIGHTYELLOW_EX}#1 : Get the group members :\n#2 : Get messages :\n#3 : Get groups :\n#4 : Get user id :\n{Fore.RED}#5 : Log out :{Style.RESET_ALL}")
 
     your_option = input("\nEnter the option's number: #")
 
@@ -151,6 +162,10 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "4"):
+        await get_user_id()
+        sleep(5)
+        await get_options()
+    elif (your_option == "5"):
         await client.log_out()
         print(f"{Fore.GREEN} Bye, {username}{Style.RESET_ALL}")
     else:
