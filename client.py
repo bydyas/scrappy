@@ -14,7 +14,7 @@ from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.channels import GetParticipantsRequest
 from telethon.tl.types import ChannelParticipantsSearch
 from telethon.tl.types import (
-    PeerChannel
+    PeerChannel, PeerUser
 )
 
 import constants
@@ -44,8 +44,38 @@ async def auth(phone):
     me = await client.get_me()
 
 
+async def get_messages():
+    user_input_channel = input("Group URL or ID: ")
+    user_input_tag = input("User TAG or ID: @")
+    # Get group entity by URL or ID
+    if user_input_channel.isdigit():
+        channel_entity = PeerChannel(int(user_input_channel))
+    else:
+        channel_entity = user_input_channel
+
+    my_channel = await client.get_entity(channel_entity)
+    # Get user entity by URL or ID
+    if user_input_tag.isdigit():
+        user_entity = PeerUser(int(user_input_tag))
+    else:
+        user_entity = user_input_tag
+
+    my_user = await client.get_entity(user_entity)
+
+    all_messages = []
+
+    async for message in client.iter_messages(my_channel, from_user=my_user):
+        all_messages.append({"id": message.id, "text": message.text})
+
+    filename = user_input_channel.replace("/", "_").replace(":", "")
+    df = pd.DataFrame(all_messages)
+    full_filename = user_input_tag + '_messages'+filename+'.csv'
+    df.to_csv(full_filename, index=False)
+    print(f"{Fore.GREEN}Done: {full_filename}{Style.RESET_ALL}")
+
+
 async def get_members():
-    user_input_channel = input("Telegram URL or entity id: ")
+    user_input_channel = input("Group URL or ID: ")
 
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
@@ -82,14 +112,14 @@ async def get_members():
     filename = user_input_channel.replace("/", "_").replace(":", "")
     df = pd.DataFrame(all_user_details)
     full_filename = 'withphone_'+filename+'.csv'
-    df.to_csv(full_filename, index=True)
+    df.to_csv(full_filename, index=False)
     print(f"{Fore.GREEN}Done: {full_filename}{Style.RESET_ALL}")
 
 
 async def get_options():
     utils.clear()
     print("=========\nOptions:\n=========")
-    print("#1 : Get the group members :\n #2 : Log out : ")
+    print("#1 : Get the group members :\n#2 : Get messages :\n#3 :Log out")
 
     your_option = input("\nEnter the option's number: #")
 
@@ -101,6 +131,10 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "2"):
+        await get_messages()
+        sleep(2)
+        await get_options()
+    elif (your_option == "3"):
         await client.log_out()
         print(f"{Fore.GREEN} Bye, {username}{Style.RESET_ALL}")
     else:
