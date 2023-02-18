@@ -99,7 +99,7 @@ async def get_messages():
 async def get_members():
     user_input_channel = input("Group URL or ID: ")
 
-    if user_input_channel.isdigit():
+    if user_input_channel.lstrip("-").isdigit():
         entity = PeerChannel(int(user_input_channel))
     else:
         entity = user_input_channel
@@ -154,7 +154,10 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "2"):
-        await get_messages()
+        try:
+            await get_messages()
+        except ValueError as e:
+            print(f"{Fore.YELLOW} : Try another URL\id : {Style.RESET_ALL}")
         sleep(2)
         await get_options()
     elif (your_option == "3"):
