@@ -165,7 +165,10 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "4"):
-        await get_user_id()
+        try:
+            await get_user_id()
+        except ValueError as e:
+            print(f"{Fore.YELLOW} : Try another tag : {Style.RESET_ALL}")
         sleep(5)
         await get_options()
     elif (your_option == "5"):
