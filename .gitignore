@@ -9,7 +9,7 @@ __pycache__/
 
 # Add files
 constants.py
-
+*.csv
 
 # C extensions
 *.so
