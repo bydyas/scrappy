@@ -123,7 +123,8 @@ async def get_members():
     all_user_details = []
     for participant in all_participants:
         all_user_details.append(
-            {"user.id": participant.id,
+            {"group_title": my_channel.title,
+             "user.id": participant.id,
              "first_name": participant.first_name,
              "last_name": participant.last_name,
              "username": participant.username,
