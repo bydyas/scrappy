@@ -71,9 +71,9 @@ async def get_messages():
     async for message in client.iter_messages(my_channel, from_user=my_user):
         all_messages.append({"id": message.id, "text": message.text})
         if message.photo:
-            save_path = utils.make_photo_dir()
+            save_path = utils.make_photo_dir(user_input_tag)
             path = await client.download_media(message.media, save_path)
-            print(f"Photo ({str(message.file.name)}) // {path}")
+            print(f"{Fore.LIGHTGREEN_EX}Photo // {path}{Style.RESET_ALL}")
 
     filename = user_input_channel.replace("/", "_").replace(":", "")
     df = pd.DataFrame(all_messages)
