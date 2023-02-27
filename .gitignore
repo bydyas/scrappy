@@ -6,6 +6,7 @@ __pycache__/
 # telthon session
 *.session
 *.session-journal
+*_photos
 
 # Add files
 constants.py
