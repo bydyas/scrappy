@@ -23,25 +23,7 @@ import utils
 # Setting configuration values
 api_id = constants.API_ID
 api_hash = str(constants.HASH_ID)
-phone = "+" + input(f"{Fore.LIGHTBLUE_EX}Your phone: +{Style.RESET_ALL}")
 username = input(f"{Fore.LIGHTBLUE_EX}Your user tag: @{Style.RESET_ALL}")
-
-# Create the client and connect
-client = TelegramClient(username, api_id, api_hash)
-
-
-async def auth(phone):
-    await client.start()
-    print("[scrappy] Client has been created")
-    # Ensure you're authorized
-    if await client.is_user_authorized() == False:
-        await client.send_code_request(phone)
-        try:
-            await client.sign_in(phone, input('Enter the code: '))
-        except SessionPasswordNeededError:
-            await client.sign_in(password=input('Password: '))
-
-    me = await client.get_me()
 
 
 async def get_groups():
@@ -182,12 +164,7 @@ async def get_options():
     else:
         await get_options()
 
-
-async def main(phone):
-    utils.clear()
-    auth(phone)
-    await get_options()
-
-
-with client:
-    client.loop.run_until_complete(main(phone))
+# Create seesion via user credentials
+with TelegramClient(username, api_id, api_hash) as client:
+    client.start()
+    client.loop.run_until_complete(get_options())
