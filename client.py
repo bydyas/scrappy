@@ -10,7 +10,7 @@ from colorama import Fore
 from colorama import Style
 
 from telethon import TelegramClient
-from telethon.errors import SessionPasswordNeededError
+from telethon.errors import SessionPasswordNeededError, UsernameInvalidError
 from telethon.tl.functions.channels import GetParticipantsRequest
 from telethon.tl.types import ChannelParticipantsSearch
 from telethon.tl.types import (
@@ -39,13 +39,28 @@ async def get_groups():
 
 
 async def get_user_id():
-    user_input_tag = input("User tag: @")
-    try:
-        user = await client.get_entity(user_input_tag)
-        print(f"{Fore.GREEN}Done! {user.username}:{user.id}{Style.RESET_ALL}")
-    except UsernameInvalidError as e:
-        await event.respond(f'{Fore.YELLOW}Invalid user tag. Try another{Style.RESET_ALL}')
-        raise events.StopPropagation
+    user_input_tag = input("User tag(s): @")
+    user_input_tag_arr = user_input_tag.strip().split(" ")
+
+    if len(user_input_tag_arr) > 1:
+        all_ids = []
+        for tag in user_input_tag_arr:
+            try:
+                user = await client.get_entity(tag)
+                all_ids.append({"username": user.username, "ID": user.id})
+            except ValueError as e:
+                print(
+                    f'{Fore.YELLOW}Invalid user tag ({tag}). Try another{Style.RESET_ALL}')
+        df = pd.DataFrame(all_ids)
+        filename = 'IDs.csv'
+        df.to_csv(filename, index=False)
+        print(f"{Fore.GREEN}Done: {filename}{Style.RESET_ALL}")
+    else:
+        try:
+            user = await client.get_entity(user_input_tag)
+            print(f"{Fore.GREEN}Done! {user.username}:{user.id}{Style.RESET_ALL}")
+        except ValueError as e:
+            print(f'{Fore.YELLOW}Invalid user tag. Try another{Style.RESET_ALL}')
 
 
 async def get_messages():
@@ -129,7 +144,7 @@ async def get_options():
     utils.clear()
     print("=========\n Options:\n=========")
     print(
-        f"{Fore.LIGHTYELLOW_EX}#1 : Get the group members :\n#2 : Get messages :\n#3 : Get groups :\n#4 : Get user id :\n{Fore.RED}#5 : Log out :{Style.RESET_ALL}")
+        f"{Fore.LIGHTYELLOW_EX}#1 : Get the group members :\n#2 : Get messages :\n#3 : Get groups :\n#4 : Get user id(s) :\n{Fore.RED}#5 : Log out :{Style.RESET_ALL}")
 
     your_option = input("\nEnter the option's number: #")
 
@@ -152,10 +167,7 @@ async def get_options():
         sleep(2)
         await get_options()
     elif (your_option == "4"):
-        try:
-            await get_user_id()
-        except ValueError as e:
-            print(f"{Fore.YELLOW} : Try another tag : {Style.RESET_ALL}")
+        await get_user_id()
         sleep(5)
         await get_options()
     elif (your_option == "5"):
